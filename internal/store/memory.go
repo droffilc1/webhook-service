@@ -29,12 +29,13 @@ var (
 
 	ErrEventExists    = errors.New("event already exists")
 	ErrEndpointExists = errors.New("endpoint already exists")
+	ErrDeliveryExists = errors.New("delivery already exists")
 )
 
 // CreateDelivery implements [Store].
 func (m *Memory) CreateDelivery(delivery *model.Delivery) error {
 	if _, exists := m.deliveries[delivery.ID]; exists {
-		return ErrDeliveryNotFound
+		return ErrDeliveryExists
 	}
 
 	m.deliveries[delivery.ID] = delivery
