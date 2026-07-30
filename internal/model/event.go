@@ -7,8 +7,8 @@ import (
 
 // Event describes properties of an event
 type Event struct {
-	ID      string
-	Type    string
-	Payload json.RawMessage
-	Created time.Time
+	ID        string          `json:"id"`
+	Type      string          `json:"type"`
+	Payload   json.RawMessage `json:"payload"`
+	CreatedAt time.Time       `json:"created_at"`
 }
