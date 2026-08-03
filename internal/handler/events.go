@@ -29,12 +29,13 @@ func (h *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&newEvent); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	newEvent.ID = uuid.NewString()
 	newEvent.CreatedAt = time.Now()
 
-	err := h.store.CreateEvent(&newEvent)
+	err := h.delivery.DeliverEvent(&newEvent)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -52,7 +53,7 @@ func (h *Handler) GetEvents(w http.ResponseWriter, r *http.Request) {
 
 	events, err := h.store.ListEvents()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

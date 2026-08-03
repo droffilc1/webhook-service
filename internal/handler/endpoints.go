@@ -4,13 +4,23 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/droffilc1/webhook-service/internal/model"
+	"github.com/google/uuid"
 )
 
 // CreateEndpoint creates a new endpoint
 func (h *Handler) CreateEndpoint(w http.ResponseWriter, r *http.Request) {
 	var newEndpoint model.Endpoint
+
+	if err := json.NewDecoder(r.Body).Decode(&newEndpoint); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	newEndpoint.ID = uuid.NewString()
+	newEndpoint.CreatedAt = time.Now()
 
 	err := h.store.CreateEndpoint(&newEndpoint)
 	if err != nil {

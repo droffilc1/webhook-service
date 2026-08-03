@@ -8,9 +8,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/droffilc1/webhook-service/internal/model"
 	"github.com/droffilc1/webhook-service/internal/store"
+	"github.com/google/uuid"
 )
 
 type DeliveryService struct {
@@ -63,9 +65,11 @@ func (d *DeliveryService) deliverToEndpoint(
 ) error {
 
 	delivery := &model.Delivery{
+		ID:         uuid.NewString(),
 		EventID:    event.ID,
 		EndpointID: endpoint.ID,
 		Attempt:    1,
+		CreatedAt:  time.Now(),
 	}
 
 	resp, err := d.client.Post(
