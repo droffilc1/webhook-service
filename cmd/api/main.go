@@ -3,7 +3,9 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
+	"github.com/droffilc1/webhook-service/internal/delivery"
 	"github.com/droffilc1/webhook-service/internal/handler"
 	"github.com/droffilc1/webhook-service/internal/store"
 )
@@ -11,7 +13,11 @@ import (
 func main() {
 	s := store.NewStore()
 
-	h := handler.New(s)
+	deliveryService := delivery.New(s, &http.Client{
+		Timeout: 5 * time.Second,
+	})
+
+	h := handler.New(s, deliveryService)
 
 	mux := http.NewServeMux()
 

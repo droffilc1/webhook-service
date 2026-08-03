@@ -3,24 +3,36 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
+	"github.com/droffilc1/webhook-service/internal/delivery"
 	"github.com/droffilc1/webhook-service/internal/model"
 	"github.com/droffilc1/webhook-service/internal/store"
+	"github.com/google/uuid"
 )
 
 type Handler struct {
-	store store.Store
+	store    store.Store
+	delivery *delivery.DeliveryService
 }
 
-func New(store store.Store) *Handler {
+func New(store store.Store, delivery *delivery.DeliveryService) *Handler {
 	return &Handler{
-		store: store,
+		store:    store,
+		delivery: delivery,
 	}
 }
 
 // CreateEvent creats a new event
 func (h *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	var newEvent model.Event
+
+	if err := json.NewDecoder(r.Body).Decode(&newEvent); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
+	newEvent.ID = uuid.NewString()
+	newEvent.CreatedAt = time.Now()
 
 	err := h.store.CreateEvent(&newEvent)
 	if err != nil {
@@ -40,7 +52,7 @@ func (h *Handler) GetEvents(w http.ResponseWriter, r *http.Request) {
 
 	events, err := h.store.ListEvents()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
@@ -55,7 +67,7 @@ func (h *Handler) GetEvent(w http.ResponseWriter, r *http.Request) {
 
 	event, err := h.store.GetEvent(id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
