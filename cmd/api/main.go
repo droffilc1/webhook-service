@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/droffilc1/webhook-service/internal/delivery"
@@ -31,6 +32,10 @@ func main() {
 	mux.HandleFunc("PUT /endpoints/{id}", h.UpdateEndpoint)
 	mux.HandleFunc("DELETE /endpoints/{id}", h.DeleteEndpoint)
 
-	log.Println("Server running on :4000")
-	log.Fatal(http.ListenAndServe(":4000", mux))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "4000"
+	}
+	log.Printf("Server running on :%s", port)
+	log.Fatal(http.ListenAndServe(":"+port, mux))
 }
