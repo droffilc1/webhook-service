@@ -1,7 +1,8 @@
 package main
 
 import (
-	"log"
+	"flag"
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
@@ -20,6 +21,11 @@ func main() {
 
 	h := handler.New(s, deliveryService)
 
+	addr := flag.String("addr", ":4000", "HTTP network address")
+	flag.Parse()
+
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /health", h.Health)
@@ -32,10 +38,8 @@ func main() {
 	mux.HandleFunc("PUT /endpoints/{id}", h.UpdateEndpoint)
 	mux.HandleFunc("DELETE /endpoints/{id}", h.DeleteEndpoint)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "4000"
-	}
-	log.Printf("Server running on :%s", port)
-	log.Fatal(http.ListenAndServe(":"+port, mux))
+	logger.Info("starting server", "addr", *addr)
+	err := http.ListenAndServe(*addr, mux)
+	logger.Error(err.Error())
+	os.Exit(1)
 }
