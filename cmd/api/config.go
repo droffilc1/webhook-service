@@ -27,6 +27,7 @@ func loadConfig() config {
 	}
 	if cfg.dsn == "" {
 		slog.Error("DATABASE_URL is required")
+		os.Exit(1)
 	}
 
 	return cfg
