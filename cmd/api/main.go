@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"log/slog"
 	"net/http"
@@ -8,38 +9,67 @@ import (
 	"time"
 
 	"github.com/droffilc1/webhook-service/internal/delivery"
-	"github.com/droffilc1/webhook-service/internal/handler"
 	"github.com/droffilc1/webhook-service/internal/store"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
+type application struct {
+	logger *slog.Logger
+}
+
 func main() {
-	s := store.NewStore()
 
-	deliveryService := delivery.New(s, &http.Client{
-		Timeout: 5 * time.Second,
-	})
-
-	h := handler.New(s, deliveryService)
-
-	addr := flag.String("addr", ":4000", "HTTP network address")
+	cfg := loadConfig()
+	addr := flag.String("addr", cfg.addr, "HTTP network address")
+	dsn := flag.String(
+		"dsn",
+		cfg.dsn,
+		"Postgres data source name",
+	)
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
-	mux := http.NewServeMux()
+	db, err := openDB(*dsn)
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
 
-	mux.HandleFunc("GET /health", h.Health)
-	mux.HandleFunc("POST /events", h.CreateEvent)
-	mux.HandleFunc("GET /events", h.GetEvents)
-	mux.HandleFunc("GET /events/{id}", h.GetEvent)
-	mux.HandleFunc("POST /endpoints", h.CreateEndpoint)
-	mux.HandleFunc("GET /endpoints", h.GetEndpoints)
-	mux.HandleFunc("GET /endpoints/{id}", h.GetEndpoint)
-	mux.HandleFunc("PUT /endpoints/{id}", h.UpdateEndpoint)
-	mux.HandleFunc("DELETE /endpoints/{id}", h.DeleteEndpoint)
+	defer db.Close()
+
+	var st store.Store
+	if *dsn != "" {
+		st = store.NewPostgresStore(db)
+	} else {
+		st = store.NewStore()
+	}
+
+	deliveryService := delivery.New(st, &http.Client{
+		Timeout: 5 * time.Second,
+	})
+
+	app := &application{
+		logger: logger,
+	}
 
 	logger.Info("starting server", "addr", *addr)
-	err := http.ListenAndServe(*addr, mux)
+	err = http.ListenAndServe(*addr, app.routes(st, deliveryService))
 	logger.Error(err.Error())
 	os.Exit(1)
+}
+
+func openDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("pgx", dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Ping()
+	if err != nil {
+		db.Close()
+		return nil, err
+	}
+
+	return db, nil
 }
