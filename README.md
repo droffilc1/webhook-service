@@ -2,11 +2,12 @@
 
 ## Overview
 
-Webhook Delivery Service is a lightweight HTTP service written in Go that allows applications to publish events and register webhook endpoints.
-
-When an event is received, the service stores it in memory, retrieves all registered endpoints, and delivers the event synchronously using HTTP POST requests.
-
-The project is built entirely with Go's standard library and demonstrates REST API design, dependency injection, and modular backend architecture.
+Webhook Delivery Service is a HTTP service that allows applications to publish 
+events and register webhook endpoints. When an event is received, the service 
+stores it in memory/database, retrieves all registered endpoints, and delivers
+the event synchronously using HTTP POST requests. The project is built entirely
+with Go's standard library and demonstrates REST API design, dependency injection,
+and modular backend architecture.
 
 ---
 
@@ -228,7 +229,7 @@ internal/
 * [x] In-memory storage
 * [x] Synchronous event delivery
 * [x] REST API endpoints
-* [ ] PostgreSQL-backed storage (`postgres.go`) implementing the `Store` interface
+* [x] PostgreSQL-backed storage (`postgres.go`) implementing the `Store` interface
 * [ ] Authentication middleware with API key support for publishers
 * [ ] Redis-backed idempotency keys to prevent duplicate event processing
 * [ ] Asynchronous event delivery using Asynq with retries, exponential backoff, and a dead-letter queue
