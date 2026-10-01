@@ -1,9 +1,11 @@
 # Webhook Delivery Service
 
+[![CI](https://github.com/droffilc1/webhook-service/actions/workflows/golangci-lint.yml/badge.svg)](https://github.com/droffilc1/golangci-lint/actions/workflows/golangci-lint.yml)
+
 ## Overview
 
-Webhook Delivery Service is a HTTP service that allows applications to publish 
-events and register webhook endpoints. When an event is received, the service 
+Webhook Delivery Service is a HTTP service that allows applications to publish
+events and register webhook endpoints. When an event is received, the service
 stores it in memory/database, retrieves all registered endpoints, and delivers
 the event synchronously using HTTP POST requests. The project is built entirely
 with Go's standard library and demonstrates REST API design, dependency injection,
@@ -58,20 +60,20 @@ The webhook delivery process follows this flow:
 
 ```text
 Register Endpoint
-        │
-        ▼
+│
+▼
 Publish Event
-        │
-        ▼
+│
+▼
 Store Event
-        │
-        ▼
+│
+▼
 Retrieve Registered Endpoints
-        │
-        ▼
+│
+▼
 Deliver Event via HTTP POST
-        │
-        ▼
+│
+▼
 Record Delivery Attempt
 ```
 
@@ -97,7 +99,7 @@ GET /health
 Example response:
 ```json
 {
-    "status":"ok"
+"status":"ok"
 }
 ```
 
@@ -109,25 +111,25 @@ Example response:
 
 ```sh
 curl -X POST http://localhost:4000/events \
-  -H "Content-Type: application/json" \
-  -d '{
-    "type": "user.created",
-    "payload": {
-      "email": "test@example.com"
-    }
-  }'
+-H "Content-Type: application/json" \
+-d '{
+"type": "user.created",
+"payload": {
+"email": "test@example.com"
+}
+}'
 ```
 
 Example response:
 
 ```json
 {
-  "id": "32ed1be5-dad3-41a7-a1af-32ca0204f8f2",
-  "type": "user.created",
-  "payload": {
-    "email": "test@example.com"
-  },
-  "created_at": "2026-08-03T17:12:41.389805212+03:00"
+"id": "32ed1be5-dad3-41a7-a1af-32ca0204f8f2",
+"type": "user.created",
+"payload": {
+"email": "test@example.com"
+},
+"created_at": "2026-08-03T17:12:41.389805212+03:00"
 }
 ```
 
@@ -141,95 +143,95 @@ curl http://localhost:4000/events
 
 ```sh
 curl http://localhost:4000/events/<event-id>
-```
+    ```
 
----
+    ---
 
-## Endpoints
+    ## Endpoints
 
-### Register an endpoint
+    ### Register an endpoint
 
-```sh
-curl -X POST http://localhost:4000/endpoints \
-  -H "Content-Type: application/json" \
-  -d '{
+    ```sh
+    curl -X POST http://localhost:4000/endpoints \
+    -H "Content-Type: application/json" \
+    -d '{
     "url": "https://webhook.site/your-unique-url"
-  }'
-```
+    }'
+    ```
 
-Example response:
+    Example response:
 
-```json
-{
-  "id": "2d7b3fea-806b-41f9-a264-85cdf1d9f9f1",
-  "url": "https://webhook.site/your-unique-url",
-  "created_at": "2026-08-03T17:31:18.093196989+03:00"
-}
-```
-
-### List all endpoints
-
-```sh
-curl http://localhost:4000/endpoints
-```
-
-Example response:
-
-```json
-[
-  {
+    ```json
+    {
     "id": "2d7b3fea-806b-41f9-a264-85cdf1d9f9f1",
     "url": "https://webhook.site/your-unique-url",
     "created_at": "2026-08-03T17:31:18.093196989+03:00"
-  }
-]
-```
+    }
+    ```
 
-### Get an endpoint
+    ### List all endpoints
 
-```sh
-curl http://localhost:4000/endpoints/<endpoint-id>
-```
+    ```sh
+    curl http://localhost:4000/endpoints
+    ```
 
-### Update an endpoint
+    Example response:
 
-```sh
-curl -X PUT http://localhost:4000/endpoints/<endpoint-id> \
-  -H "Content-Type: application/json" \
-  -d '{
-    "url": "https://example.com/webhook"
-  }'
-```
+    ```json
+    [
+    {
+    "id": "2d7b3fea-806b-41f9-a264-85cdf1d9f9f1",
+    "url": "https://webhook.site/your-unique-url",
+    "created_at": "2026-08-03T17:31:18.093196989+03:00"
+    }
+    ]
+    ```
 
-### Delete an endpoint
+    ### Get an endpoint
 
-```sh
-curl -X DELETE http://localhost:4000/endpoints/<endpoint-id>
-```
+    ```sh
+    curl http://localhost:4000/endpoints/<endpoint-id>
+        ```
 
----
+        ### Update an endpoint
 
-## Project Structure
+        ```sh
+        curl -X PUT http://localhost:4000/endpoints/<endpoint-id> \
+            -H "Content-Type: application/json" \
+            -d '{
+            "url": "https://example.com/webhook"
+            }'
+            ```
 
-```text
-cmd/
-    api/
+            ### Delete an endpoint
 
-internal/
-    delivery/
-    handler/
-    model/
-    store/
-```
+            ```sh
+            curl -X DELETE http://localhost:4000/endpoints/<endpoint-id>
+                ```
 
----
+                ---
 
-## Progress
+                ## Project Structure
 
-* [x] In-memory storage
-* [x] Synchronous event delivery
-* [x] REST API endpoints
-* [x] PostgreSQL-backed storage (`postgres.go`) implementing the `Store` interface
-* [ ] Authentication middleware with API key support for publishers
-* [ ] Redis-backed idempotency keys to prevent duplicate event processing
-* [ ] Asynchronous event delivery using Asynq with retries, exponential backoff, and a dead-letter queue
+                ```text
+                cmd/
+                api/
+
+                internal/
+                delivery/
+                handler/
+                model/
+                store/
+                ```
+
+                ---
+
+                ## Progress
+
+                * [x] In-memory storage
+                * [x] Synchronous event delivery
+                * [x] REST API endpoints
+                * [x] PostgreSQL-backed storage (`postgres.go`) implementing the `Store` interface
+                * [ ] Authentication middleware with API key support for publishers
+                * [ ] Redis-backed idempotency keys to prevent duplicate event processing
+                * [ ] Asynchronous event delivery using Asynq with retries, exponential backoff, and a dead-letter queue
