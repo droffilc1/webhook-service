@@ -31,3 +31,12 @@ CREATE TABLE IF NOT EXISTS deliveries (
     FOREIGN KEY (endpoint_id)
     REFERENCES endpoints (id)
 );
+
+CREATE TABLE IF NOT EXISTS api_keys (
+    id UUID PRIMARY KEY,
+    key_hash TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL,
+    expires_at TIMESTAMPTZ,
+    revoked_at TIMESTAMPTZ
+);

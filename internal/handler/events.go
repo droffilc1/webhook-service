@@ -23,7 +23,7 @@ func New(store store.Store, delivery *delivery.DeliveryService) *Handler {
 	}
 }
 
-// CreateEvent creats a new event
+// CreateEvent creates a new event
 func (h *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	var newEvent model.Event
 

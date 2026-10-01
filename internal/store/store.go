@@ -17,4 +17,7 @@ type Store interface {
 	CreateDelivery(delivery *model.Delivery) error
 	GetDelivery(id string) (*model.Delivery, error)
 	ListDeliveries() ([]*model.Delivery, error)
+
+	CreateAPIKey(apiKey *model.APIKey) error
+	GetAPIKeyByHash(hash string) (*model.APIKey, error)
 }

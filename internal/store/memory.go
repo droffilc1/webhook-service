@@ -12,6 +12,7 @@ type Memory struct {
 	events     map[string]*model.Event
 	endpoints  map[string]*model.Endpoint
 	deliveries map[string]*model.Delivery
+	apiKeys    map[string]*model.APIKey
 }
 
 func NewStore() Store {
@@ -19,6 +20,7 @@ func NewStore() Store {
 		events:     make(map[string]*model.Event),
 		endpoints:  make(map[string]*model.Endpoint),
 		deliveries: make(map[string]*model.Delivery),
+		apiKeys:    make(map[string]*model.APIKey),
 	}
 }
 
@@ -30,7 +32,25 @@ var (
 	ErrEventExists    = errors.New("event already exists")
 	ErrEndpointExists = errors.New("endpoint already exists")
 	ErrDeliveryExists = errors.New("delivery already exists")
+
+	ErrAPIKeyNotFound = errors.New("API key not found")
 )
+
+// CreateAPIKey implements [Store].
+func (m *Memory) CreateAPIKey(apiKey *model.APIKey) error {
+	m.apiKeys[apiKey.KeyHash] = apiKey
+	return nil
+}
+
+// GetAPIKeyByHash implements [Store].
+func (m *Memory) GetAPIKeyByHash(hash string) (*model.APIKey, error) {
+	apiKey, ok := m.apiKeys[hash]
+	if !ok {
+		return nil, ErrAPIKeyNotFound
+	}
+
+	return apiKey, nil
+}
 
 // CreateDelivery implements [Store].
 func (m *Memory) CreateDelivery(delivery *model.Delivery) error {

@@ -8,20 +8,28 @@ import (
 	"github.com/droffilc1/webhook-service/internal/store"
 )
 
-func (app *application) routes(st store.Store, deliveryService *delivery.DeliveryService) *http.ServeMux {
+func (app *application) routes(st store.Store, deliveryService *delivery.DeliveryService) http.Handler {
 
 	h := handler.New(st, deliveryService)
 	mux := http.NewServeMux()
 
+	// Unprotected routes.
 	mux.HandleFunc("GET /health", h.Health)
-	mux.HandleFunc("POST /events", h.CreateEvent)
-	mux.HandleFunc("GET /events", h.GetEvents)
-	mux.HandleFunc("GET /events/{id}", h.GetEvent)
-	mux.HandleFunc("POST /endpoints", h.CreateEndpoint)
-	mux.HandleFunc("GET /endpoints", h.GetEndpoints)
-	mux.HandleFunc("GET /endpoints/{id}", h.GetEndpoint)
-	mux.HandleFunc("PUT /endpoints/{id}", h.UpdateEndpoint)
-	mux.HandleFunc("DELETE /endpoints/{id}", h.DeleteEndpoint)
+	mux.HandleFunc("POST /api-keys", h.CreateAPIKey)
 
-	return mux
+	// Protected routes.
+	protected := func(pattern string, handler http.HandlerFunc) {
+		mux.Handle(pattern, apiKeyMiddleware(st, handler))
+	}
+
+	protected("POST /events", h.CreateEvent)
+	protected("GET /events", h.GetEvents)
+	protected("GET /events/{id}", h.GetEvent)
+	protected("POST /endpoints", h.CreateEndpoint)
+	protected("GET /endpoints", h.GetEndpoints)
+	protected("GET /endpoints/{id}", h.GetEndpoint)
+	protected("PUT /endpoints/{id}", h.UpdateEndpoint)
+	protected("DELETE /endpoints/{id}", h.DeleteEndpoint)
+
+	return securityHeaders(mux)
 }

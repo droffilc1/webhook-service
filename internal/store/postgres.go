@@ -16,6 +16,56 @@ func NewPostgresStore(db *sql.DB) Store {
 	return &PostgresStore{db: db}
 }
 
+// CreateAPIKey implements [Store].
+func (p *PostgresStore) CreateAPIKey(apiKey *model.APIKey) error {
+	query := `
+		INSERT INTO api_keys 
+			(id, key_hash, name, created_at, expires_at, revoked_at)
+		VALUES	($1, $2, $3, $4, $5, $6)
+	`
+	_, err := p.db.Exec(query,
+		apiKey.ID,
+		apiKey.KeyHash,
+		apiKey.Name,
+		apiKey.CreatedAt,
+		apiKey.ExpiresAt,
+		apiKey.RevokedAt,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetAPIKeyByHash implements [Store].
+func (p *PostgresStore) GetAPIKeyByHash(hash string) (*model.APIKey, error) {
+	var api model.APIKey
+
+	query := `
+	SELECT id, key_hash, name, created_at, expires_at, revoked_at
+	FROM api_keys
+	WHERE key_hash = $1
+	`
+	err := p.db.QueryRow(query, hash).Scan(
+		&api.ID,
+		&api.KeyHash,
+		&api.Name,
+		&api.CreatedAt,
+		&api.ExpiresAt,
+		&api.RevokedAt,
+	)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrAPIKeyNotFound
+		}
+		return nil, err
+	}
+
+	return &api, nil
+}
+
 // CreateDelivery implements [Store].
 func (p *PostgresStore) CreateDelivery(delivery *model.Delivery) error {
 	query := `
@@ -59,7 +109,7 @@ func (p *PostgresStore) CreateEndpoint(endpoint *model.Endpoint) error {
 func (p *PostgresStore) CreateEvent(event *model.Event) error {
 	query := `
 	INSERT INTO events (id, type, payload, created_at)
-	VALUES ($1, $2, $3, 4$)
+	VALUES ($1, $2, $3, $4)
 	`
 	_, err := p.db.Exec(query,
 		event.ID,
