@@ -36,7 +36,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	defer db.Close()
+	defer func() {
+		if cerr := db.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
 
 	var st store.Store
 	if *dsn != "" {
@@ -77,7 +81,11 @@ func openDB(dsn string) (*sql.DB, error) {
 
 	err = db.Ping()
 	if err != nil {
-		db.Close()
+		defer func() {
+			if cerr := db.Close(); cerr != nil && err == nil {
+				err = cerr
+			}
+		}()
 		return nil, err
 	}
 

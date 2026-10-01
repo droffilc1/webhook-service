@@ -13,7 +13,10 @@ type config struct {
 }
 
 func loadConfig() config {
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		slog.Error("Error loading .env file")
+	}
 
 	cfg := config{
 		addr: os.Getenv("PORT"),

@@ -229,7 +229,11 @@ func (p *PostgresStore) ListDeliveries() ([]*model.Delivery, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		if cerr := rows.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
 
 	var deliveries []*model.Delivery
 	for rows.Next() {
@@ -264,7 +268,11 @@ func (p *PostgresStore) ListEndpoints() ([]*model.Endpoint, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		if cerr := rows.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
 
 	var endpoints []*model.Endpoint
 	for rows.Next() {
@@ -296,7 +304,11 @@ func (p *PostgresStore) ListEvents() ([]*model.Event, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		if cerr := rows.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
 
 	var events []*model.Event
 	for rows.Next() {

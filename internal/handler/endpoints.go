@@ -3,6 +3,7 @@ package handler
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -31,7 +32,9 @@ func (h *Handler) CreateEndpoint(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 
-	json.NewEncoder(w).Encode(newEndpoint)
+	if err := json.NewEncoder(w).Encode(newEndpoint); err != nil {
+		log.Fatal(err)
+	}
 }
 
 // GetEndpoints gets a list of endpoints
@@ -44,7 +47,9 @@ func (h *Handler) GetEndpoints(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(endpoints)
+	if err := json.NewEncoder(w).Encode(endpoints); err != nil {
+		log.Fatal(err)
+	}
 }
 
 // GetEndpoint gets a specific event by its id
@@ -59,7 +64,9 @@ func (h *Handler) GetEndpoint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(endpoint)
+	if err := json.NewEncoder(w).Encode(endpoint); err != nil {
+		log.Fatal(err)
+	}
 }
 
 // UpdateEndpoint updates contents of the endpoint
@@ -77,7 +84,9 @@ func (h *Handler) UpdateEndpoint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(endpoint)
+	if err := json.NewEncoder(w).Encode(endpoint); err != nil {
+		log.Fatal(err)
+	}
 }
 
 // DeleteEndpoint deletes an endpoint
