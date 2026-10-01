@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -44,7 +45,9 @@ func (h *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 
-	json.NewEncoder(w).Encode(newEvent)
+	if err := json.NewEncoder(w).Encode(newEvent); err != nil {
+		log.Fatal(err)
+	}
 }
 
 // GetEvents gets the list of events
@@ -57,7 +60,9 @@ func (h *Handler) GetEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(events)
+	if err := json.NewEncoder(w).Encode(events); err != nil {
+		log.Fatal(err)
+	}
 }
 
 // GetEvent gets a specific event by its id
@@ -72,5 +77,7 @@ func (h *Handler) GetEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(event)
+	if err := json.NewEncoder(w).Encode(event); err != nil {
+		log.Fatal(err)
+	}
 }
