@@ -1,6 +1,6 @@
 # Webhook Delivery Service
 
-[![CI](https://github.com/droffilc1/webhook-service/actions/workflows/golangci-lint.yml/badge.svg)](https://github.com/droffilc1/golangci-lint/actions/workflows/golangci-lint.yml)
+[![CI](https://github.com/droffilc1/webhook-service/actions/workflows/golangci-lint.yml/badge.svg)](https://github.com/droffilc1/webhook-service/actions/workflows/golangci-lint.yml)
 
 ## Overview
 
